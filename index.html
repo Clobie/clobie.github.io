@@ -3,100 +3,548 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Steve</title>
+    <title>clobie.github.io</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-color: #1a1a1a;
-            --panel-color: #262626;
-            --text-color: #e0e0e0;
-            --accent-color: #fa5c5c;
+            --bg: #0d0d0f;
+            --surface: #141416;
+            --surface2: #1c1c20;
+            --border: rgba(255,255,255,0.07);
+            --border-accent: rgba(250, 92, 92, 0.4);
+            --text: #f0ede8;
+            --muted: #7a7770;
+            --accent: #fa5c5c;
+            --accent2: #ff8c42;
+            --glow: rgba(250, 92, 92, 0.15);
         }
 
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
         body {
-            font-family: sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            margin: 0;
+            font-family: 'DM Mono', monospace;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Scanline overlay */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background: repeating-linear-gradient(
+                0deg,
+                transparent,
+                transparent 2px,
+                rgba(0,0,0,0.03) 2px,
+                rgba(0,0,0,0.03) 4px
+            );
+            pointer-events: none;
+            z-index: 9999;
+        }
+
+        /* ── HEADER ── */
+        header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(13,13,15,0.92);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border);
+            padding: 0 2rem;
             display: flex;
-            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            height: 60px;
+        }
+
+        .logo {
+            font-family: 'Syne', sans-serif;
+            font-weight: 800;
+            font-size: 1.1rem;
+            letter-spacing: -0.02em;
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .logo-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--accent);
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.4; transform: scale(0.7); }
+        }
+
+        /* ── GAME NAV ── */
+        .game-nav {
+            display: flex;
+            gap: 4px;
             align-items: center;
         }
 
-        header {
-            width: 100%;
-            padding: 20px;
-            background-color: var(--panel-color);
-            text-align: center;
-            border-bottom: 4px solid var(--accent-color);
+        .game-tab {
+            position: relative;
+            background: transparent;
+            color: var(--muted);
+            border: none;
+            padding: 6px 16px;
+            cursor: pointer;
+            font-family: 'DM Mono', monospace;
+            font-size: 0.78rem;
+            font-weight: 500;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            border-radius: 4px;
+            transition: color 0.2s, background 0.2s;
+            white-space: nowrap;
         }
 
-        .container {
-            max-width: 960px;
-            width: 100%;
-            padding: 20px;
+        .game-tab:hover {
+            color: var(--text);
+            background: var(--surface2);
         }
 
-        .game-wrapper {
-            background: #000;
-            padding: 10px;
-            border-radius: 8px;
+        .game-tab.active {
+            color: var(--accent);
+            background: rgba(250, 92, 92, 0.08);
+        }
+
+        .game-tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60%;
+            height: 2px;
+            background: var(--accent);
+            border-radius: 2px 2px 0 0;
+        }
+
+        /* ── MAIN LAYOUT ── */
+        .layout {
+            display: grid;
+            grid-template-columns: 260px 1fr;
+            grid-template-rows: auto 1fr;
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 2rem 2rem 4rem;
+            gap: 1.5rem;
+        }
+
+        /* ── SIDEBAR ── */
+        .sidebar {
+            grid-row: 1 / span 2;
             display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .sidebar-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .sidebar-label {
+            font-size: 0.65rem;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--muted);
+            padding: 12px 16px 8px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .game-list-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 16px;
+            cursor: pointer;
+            transition: background 0.15s;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .game-list-item:last-child { border-bottom: none; }
+
+        .game-list-item:hover { background: var(--surface2); }
+
+        .game-list-item.active {
+            background: rgba(250, 92, 92, 0.06);
+            border-left: 2px solid var(--accent);
+        }
+
+        .game-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            display: flex;
+            align-items: center;
             justify-content: center;
+            font-size: 1.1rem;
+            flex-shrink: 0;
+        }
+
+        .game-list-item.active .game-icon {
+            background: rgba(250, 92, 92, 0.1);
+            border-color: var(--border-accent);
+        }
+
+        .game-list-meta { flex: 1; min-width: 0; }
+
+        .game-list-name {
+            font-family: 'Syne', sans-serif;
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--text);
+            line-height: 1.2;
+        }
+
+        .game-list-item.active .game-list-name { color: var(--accent); }
+
+        .game-list-sub {
+            font-size: 0.68rem;
+            color: var(--muted);
+            margin-top: 2px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .play-badge {
+            font-size: 0.6rem;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--accent);
+            background: rgba(250, 92, 92, 0.1);
+            border: 1px solid rgba(250, 92, 92, 0.25);
+            padding: 2px 6px;
+            border-radius: 3px;
+        }
+
+        /* controls section in sidebar */
+        .controls-list {
+            padding: 12px 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .control-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.75rem;
+        }
+
+        .key {
+            background: var(--surface2);
+            border: 1px solid rgba(255,255,255,0.12);
+            border-bottom-width: 2px;
+            border-radius: 4px;
+            padding: 2px 7px;
+            font-size: 0.7rem;
+            font-family: 'DM Mono', monospace;
+            color: var(--text);
+            min-width: 32px;
+            text-align: center;
+            flex-shrink: 0;
+        }
+
+        .control-desc { color: var(--muted); }
+
+        /* ── GAME AREA ── */
+        .game-area { display: flex; flex-direction: column; gap: 1.25rem; }
+
+        .viewport-wrapper {
+            position: relative;
+            border-radius: 10px;
+            overflow: hidden;
+            background: #000;
+            border: 1px solid var(--border);
+            box-shadow: 0 0 40px rgba(250, 92, 92, 0.05), inset 0 0 1px rgba(255,255,255,0.05);
+        }
+
+        .viewport-topbar {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 14px;
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .dot { width: 10px; height: 10px; border-radius: 50%; }
+        .dot-red { background: #ff5f57; }
+        .dot-yellow { background: #febc2e; }
+        .dot-green { background: #28c840; }
+
+        .viewport-title {
+            font-size: 0.72rem;
+            color: var(--muted);
+            letter-spacing: 0.08em;
+            margin-left: auto;
+            margin-right: auto;
         }
 
         iframe {
-            width: 800px;
-            height: 600px;
+            display: block;
+            width: 100%;
+            height: 560px;
             border: none;
         }
 
-        .info-panel {
-            margin-top: 20px;
-            padding: 20px;
-            background: var(--panel-color);
-            border-radius: 8px;
+        .fullscreen-btn {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--muted);
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 0.68rem;
+            font-family: 'DM Mono', monospace;
+            cursor: pointer;
+            letter-spacing: 0.05em;
+            transition: color 0.15s, border-color 0.15s;
+        }
+
+        .fullscreen-btn:hover { color: var(--text); border-color: var(--border-accent); }
+
+        /* ── INFO BAR ── */
+        .info-bar {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 16px 20px;
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 2rem;
+        }
+
+        .info-title {
+            font-family: 'Syne', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+        }
+
+        .info-desc {
+            font-size: 0.78rem;
+            color: var(--muted);
+            margin-top: 4px;
+            line-height: 1.6;
+            max-width: 420px;
+        }
+
+        .info-tag {
+            font-size: 0.65rem;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--accent2);
+            background: rgba(255, 140, 66, 0.1);
+            border: 1px solid rgba(255, 140, 66, 0.2);
+            padding: 3px 8px;
+            border-radius: 3px;
+            margin-top: 8px;
+            display: inline-block;
+        }
+
+        .click-hint {
+            font-size: 0.7rem;
+            color: var(--muted);
+            text-align: right;
+            white-space: nowrap;
+            padding-top: 4px;
+        }
+
+        .click-hint span { color: var(--accent); }
+
+        /* ── ANIMATIONS ── */
+        @keyframes fadeSlide {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .game-area { animation: fadeSlide 0.3s ease; }
+
+        /* ── RESPONSIVE ── */
+        @media (max-width: 780px) {
+            .layout {
+                grid-template-columns: 1fr;
+                padding: 1rem;
+            }
+            .sidebar { grid-row: auto; }
+            header { padding: 0 1rem; }
+            .logo-text { display: none; }
+            iframe { height: 380px; }
         }
     </style>
 </head>
 <body>
 
-    <header>
-        <h1>Steve</h1>
-    </header>
+<header>
+    <div class="logo">
+        <div class="logo-dot"></div>
+        <span class="logo-text">clobie.github.io</span>
+    </div>
+    <nav class="game-nav" id="topNav">
+        <button class="game-tab active" onclick="switchGame(0, this)">Steve</button>
+        <button class="game-tab" onclick="switchGame(1, this)">Orb Thing</button>
+    </nav>
+</header>
 
-    <div class="container">
-        <div class="game-wrapper">
-            <!-- Ensure this path is correct for your repo structure -->
-            <iframe 
-                src="web_build/tentacle/index.html" 
-                class="game-frame" 
-                frameborder="0" 
-                allow="autoplay; fullscreen; xr-spatial-tracking; cross-origin-isolated" 
-                allowfullscreen>
-            </iframe>
+<div class="layout">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <div class="sidebar-card">
+            <div class="sidebar-label">Games</div>
+            <div id="gameList"></div>
         </div>
 
-        <div class="info-panel">
-            <h2>About this game</h2>
-            <p>His name is steve</p>
-            <h3>Controls</h3>
-            <ul>
-                <li><strong>W:</strong> Wall Hold</li>
-                <li><strong>A:</strong> Move Left</li>
-                <li><strong>D:</strong> Move Right</li>
-                <li><strong>Space:</strong> Jump</li>
-            </ul>
+        <div class="sidebar-card">
+            <div class="sidebar-label">Controls</div>
+            <div class="controls-list" id="controlsList"></div>
+        </div>
+    </aside>
+
+    <!-- GAME AREA -->
+    <div class="game-area">
+        <div class="viewport-wrapper">
+            <div class="viewport-topbar">
+                <div class="dot dot-red"></div>
+                <div class="dot dot-yellow"></div>
+                <div class="dot dot-green"></div>
+                <span class="viewport-title" id="viewportTitle">web_build/tentacle/index.html</span>
+                <button class="fullscreen-btn" onclick="document.getElementById('game-frame').requestFullscreen()">⛶ fullscreen</button>
+            </div>
+            <iframe id="game-frame" src="web_build/tentacle/index.html" allowfullscreen></iframe>
+        </div>
+
+        <div class="info-bar">
+            <div>
+                <div class="info-title" id="game-title">Steve</div>
+                <div class="info-desc" id="game-desc">His name is steve.</div>
+                <div class="info-tag" id="game-tag">platformer</div>
+            </div>
+            <div class="click-hint">click inside to<br>capture <span>keyboard focus</span></div>
         </div>
     </div>
 
-    <script>
-        // Ensures game catches focus on click
-        document.querySelector('iframe').addEventListener('load', function() {
-            this.contentWindow.focus();
+</div>
+
+<script>
+    const games = [
+        {
+            folder: 'tentacle',
+            name: 'Steve is dreaming',
+            desc: 'His name is steve.',
+            tag: 'platformer',
+            icon: '🐙',
+            controls: [
+                { key: 'W', desc: 'Wall Hold' },
+                { key: 'A', desc: 'Move Left' },
+                { key: 'D', desc: 'Move Right' },
+                { key: 'SPC', desc: 'Jump' },
+            ]
+        },
+        {
+            folder: 'orbdemo',
+            name: 'Orb Puzzle Thing',
+            desc: 'Put orb in thing. Fight boss.',
+            tag: 'arcade',
+            icon: '🔮',
+            controls: [
+                { key: 'W',    desc: 'Wall Hold' },
+                { key: 'A D',  desc: 'Move Left / Right' },
+                { key: 'SPC',  desc: 'Jump / Double Jump' },
+                { key: 'LMB',  desc: 'Shoot — kills enemies, pushes orbs' },
+                { key: 'RMB',  desc: 'Gravity Gun — pulls orbs' },
+            ]
+        }
+    ];
+
+    let current = 0;
+
+    function buildSidebar() {
+        const list = document.getElementById('gameList');
+        list.innerHTML = games.map((g, i) => `
+            <div class="game-list-item ${i === 0 ? 'active' : ''}" onclick="switchGame(${i}, null)">
+                <div class="game-icon">${g.icon}</div>
+                <div class="game-list-meta">
+                    <div class="game-list-name">${g.name}</div>
+                    <div class="game-list-sub">${g.tag}</div>
+                </div>
+                ${i === 0 ? '<span class="play-badge">playing</span>' : ''}
+            </div>
+        `).join('');
+    }
+
+    function buildControls(idx) {
+        const g = games[idx];
+        document.getElementById('controlsList').innerHTML = g.controls.map(c => `
+            <div class="control-row">
+                <span class="key">${c.key}</span>
+                <span class="control-desc">${c.desc}</span>
+            </div>
+        `).join('');
+    }
+
+    function switchGame(idx, tabEl) {
+        current = idx;
+        const g = games[idx];
+
+        // iframe
+        const frame = document.getElementById('game-frame');
+        frame.src = `web_build/${g.folder}/index.html`;
+
+        // info bar
+        document.getElementById('game-title').textContent = g.name;
+        document.getElementById('game-desc').textContent = g.desc;
+        document.getElementById('game-tag').textContent = g.tag;
+        document.getElementById('viewportTitle').textContent = `web_build/${g.folder}/index.html`;
+
+        // top nav tabs
+        document.querySelectorAll('.game-tab').forEach((t, i) => {
+            t.classList.toggle('active', i === idx);
         });
-        document.body.addEventListener('click', () => {
-            document.querySelector('iframe').focus();
+
+        // sidebar list
+        document.querySelectorAll('.game-list-item').forEach((el, i) => {
+            el.classList.toggle('active', i === idx);
+            const badge = el.querySelector('.play-badge');
+            if (i === idx) {
+                if (!badge) el.insertAdjacentHTML('beforeend', '<span class="play-badge">playing</span>');
+            } else {
+                if (badge) badge.remove();
+            }
         });
-    </script>
+
+        buildControls(idx);
+    }
+
+    buildSidebar();
+    buildControls(0);
+
+    // keyboard focus passthrough
+    document.addEventListener('click', () => {
+        const frame = document.getElementById('game-frame');
+        try { frame.contentWindow.focus(); } catch(e) {}
+    });
+</script>
 </body>
 </html>
