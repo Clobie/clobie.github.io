@@ -56,7 +56,6 @@
             padding: 0 2rem;
             display: flex;
             align-items: center;
-            justify-content: space-between;
             height: 60px;
         }
 
@@ -84,60 +83,20 @@
             50% { opacity: 0.4; transform: scale(0.7); }
         }
 
-        .game-nav {
-            display: flex;
-            gap: 4px;
-            align-items: center;
-        }
-
-        .game-tab {
-            position: relative;
-            background: transparent;
-            color: var(--muted);
-            border: none;
-            padding: 6px 16px;
-            cursor: pointer;
-            font-family: 'DM Mono', monospace;
-            font-size: 0.78rem;
-            font-weight: 500;
-            letter-spacing: 0.05em;
-            text-transform: uppercase;
-            border-radius: 4px;
-            transition: color 0.2s, background 0.2s;
-            white-space: nowrap;
-        }
-
-        .game-tab:hover { color: var(--text); background: var(--surface2); }
-
-        .game-tab.active {
-            color: var(--accent);
-            background: rgba(250, 92, 92, 0.08);
-        }
-
-        .game-tab.active::after {
-            content: '';
-            position: absolute;
-            bottom: -1px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 60%;
-            height: 2px;
-            background: var(--accent);
-            border-radius: 2px 2px 0 0;
-        }
-
         .layout {
             display: grid;
             grid-template-columns: 260px 1fr;
-            grid-template-rows: auto 1fr;
             max-width: 1280px;
             margin: 0 auto;
             padding: 2rem 2rem 4rem;
+            gap: 1rem;
+        }
+        #sidebarCategories {
+            display: flex;
+            flex-direction: column;
             gap: 1.5rem;
         }
-
         .sidebar {
-            grid-row: 1 / span 2;
             display: flex;
             flex-direction: column;
             gap: 1rem;
@@ -257,6 +216,9 @@
 
         .control-desc { color: var(--muted); }
 
+        /* controls card hidden when no controls (e.g. software items) */
+        .controls-card.hidden { display: none; }
+
         .game-area { display: flex; flex-direction: column; gap: 1.25rem; }
 
         .viewport-wrapper {
@@ -290,7 +252,6 @@
             margin-right: auto;
         }
 
-        /* ── ASPECT RATIO BOX ── */
         .aspect-box {
             position: relative;
             width: 100%;
@@ -370,6 +331,9 @@
 
         .click-hint span { color: var(--accent); }
 
+        /* click-hint hidden for software (no iframe focus needed) */
+        .click-hint.hidden { display: none; }
+
         @keyframes fadeSlide {
             from { opacity: 0; transform: translateY(8px); }
             to { opacity: 1; transform: translateY(0); }
@@ -382,9 +346,7 @@
                 grid-template-columns: 1fr;
                 padding: 1rem;
             }
-            .sidebar { grid-row: auto; }
             header { padding: 0 1rem; }
-            .logo-text { display: none; }
         }
     </style>
 </head>
@@ -393,20 +355,17 @@
 <header>
     <div class="logo">
         <div class="logo-dot"></div>
-        <span class="logo-text">clobie.github.io</span>
+        <span>clobie.github.io</span>
     </div>
-    <nav class="game-nav" id="topNav"></nav>
 </header>
 
 <div class="layout">
 
     <aside class="sidebar">
-        <div class="sidebar-card">
-            <div class="sidebar-label">Games</div>
-            <div id="gameList"></div>
-        </div>
+        <!-- Category sections are built dynamically -->
+        <div id="sidebarCategories"></div>
 
-        <div class="sidebar-card">
+        <div class="sidebar-card controls-card" id="controlsCard">
             <div class="sidebar-label">Controls</div>
             <div class="controls-list" id="controlsList"></div>
         </div>
@@ -432,111 +391,181 @@
                 <div class="info-desc" id="game-desc"></div>
                 <div class="info-tag" id="game-tag"></div>
             </div>
-            <div class="click-hint">click inside to<br>capture <span>keyboard focus</span></div>
+            <div class="click-hint" id="clickHint">click inside to<br>capture <span>keyboard focus</span></div>
         </div>
     </div>
 
 </div>
 
 <script>
-    const games = [
+    // ── DATA ─────────────────────────────────────────────────────────────────
+    // Each category has a label and an array of items.
+    // For games: provide `folder` (loaded in iframe) and optional `controls`.
+    // For software: provide `url` (external link opened in iframe or new tab).
+    // Set `newTab: true` if the item should open in a new tab instead of the iframe.
+    const categories = [
         {
-            folder: 'tentacle',
-            name: 'Steve is dreaming',
-            desc: 'His name is steve.',
-            tag: 'platformer',
-            icon: '🐙',
-            controls: [
-                { key: 'W',   desc: 'Wall Hold' },
-                { key: 'A',   desc: 'Move Left' },
-                { key: 'D',   desc: 'Move Right' },
-                { key: 'SPC', desc: 'Jump' },
+            label: 'Home',
+            items: [
+                {
+                    name: 'Home',
+                    desc: 'Welcome.',
+                    tag: 'home',
+                    icon: '🏠',
+                    url: 'home/index.html',
+                }
             ]
         },
         {
-            folder: 'orbdemo',
-            name: 'Orb Puzzle Thing',
-            desc: 'Put orb in thing. Fight boss.',
-            tag: 'platformer',
-            icon: '🔮',
-            controls: [
-                { key: 'W',   desc: 'Wall Hold' },
-                { key: 'S',   desc: 'Wall Slide (while wall holding)' },
-                { key: 'A',   desc: 'Move Left' },
-                { key: 'D',   desc: 'Move Right' },
-                { key: 'SPC', desc: 'Jump / Double Jump' },
-                { key: 'LMB', desc: 'Shoot — kills enemies, pushes orbs' },
-                { key: 'RMB', desc: 'Gravity Gun — pulls orbs' },
+            label: 'Games',
+            items: [
+                {
+                    folder: 'tentacle',
+                    name: 'Steve is dreaming',
+                    desc: 'His name is steve.',
+                    tag: 'platformer',
+                    icon: '🐙',
+                    controls: [
+                        { key: 'W',   desc: 'Wall Hold' },
+                        { key: 'A',   desc: 'Move Left' },
+                        { key: 'D',   desc: 'Move Right' },
+                        { key: 'SPC', desc: 'Jump' },
+                    ]
+                },
+                {
+                    folder: 'orbdemo',
+                    name: 'Orb Puzzle Thing',
+                    desc: 'Put orb in thing. Fight boss.',
+                    tag: 'platformer',
+                    icon: '🔮',
+                    controls: [
+                        { key: 'W',   desc: 'Wall Hold' },
+                        { key: 'S',   desc: 'Wall Slide (while wall holding)' },
+                        { key: 'A',   desc: 'Move Left' },
+                        { key: 'D',   desc: 'Move Right' },
+                        { key: 'SPC', desc: 'Jump / Double Jump' },
+                        { key: 'LMB', desc: 'Shoot — kills enemies, pushes orbs' },
+                        { key: 'RMB', desc: 'Gravity Gun — pulls orbs' },
+                    ]
+                },
+                {
+                    folder: 'space',
+                    name: 'Space Game Thing',
+                    desc: 'All you can do is fly around lol',
+                    tag: 'topdown-shooter',
+                    icon: '🚀',
+                    controls: [
+                        { key: 'LMB', desc: 'Thrust' },
+                        { key: 'RMB', desc: 'Laser' },
+                    ]
+                }
             ]
         },
+        // ── Add more categories here, e.g.: ──────────────────────────────────
         {
-            folder: 'space',
-            name: 'Space Game Thing',
-            desc: 'All you can do is fly around lol',
-            tag: 'topdown-shooter',
-            icon: '🚀',
-            controls: [
-                { key: 'LMB', desc: 'Thrust' },
-                { key: 'RMB', desc: 'Laser' },
+            label: 'Software',
+            items: [
+                {
+                    name: 'My Tool',
+                    desc: 'Does a thing.',
+                    tag: 'utility',
+                    icon: '🛠️',
+                    url: 'https://example.com',   // shown in iframe
+                    // newTab: true,              // uncomment to open in new tab instead
+                }
             ]
         }
     ];
 
-    let current = 0;
+    // ── STATE ─────────────────────────────────────────────────────────────────
+    let currentCatIdx  = 0;
+    let currentItemIdx = 0;
 
-    function buildNav() {
-        document.getElementById('topNav').innerHTML = games.map((g, i) => `
-            <button class="game-tab ${i === 0 ? 'active' : ''}" onclick="switchGame(${i})">${g.name}</button>
-        `).join('');
-    }
+    // Flat lookup: { catIdx, itemIdx } by a unique key
+    function itemKey(ci, ii) { return `${ci}-${ii}`; }
 
+    // ── BUILD SIDEBAR ─────────────────────────────────────────────────────────
     function buildSidebar() {
-        document.getElementById('gameList').innerHTML = games.map((g, i) => `
-            <div class="game-list-item ${i === 0 ? 'active' : ''}" onclick="switchGame(${i})">
-                <div class="game-icon">${g.icon}</div>
-                <div class="game-list-meta">
-                    <div class="game-list-name">${g.name}</div>
-                    <div class="game-list-sub">${g.tag}</div>
+        const container = document.getElementById('sidebarCategories');
+        container.innerHTML = categories.map((cat, ci) => `
+            <div class="sidebar-card">
+                <div class="sidebar-label">${cat.label}</div>
+                <div id="list-${ci}">
+                    ${cat.items.map((item, ii) => `
+                        <div class="game-list-item ${ci === 0 && ii === 0 ? 'active' : ''}"
+                             id="item-${ci}-${ii}"
+                             onclick="switchItem(${ci}, ${ii})">
+                            <div class="game-icon">${item.icon}</div>
+                            <div class="game-list-meta">
+                                <div class="game-list-name">${item.name}</div>
+                                <div class="game-list-sub">${item.tag}</div>
+                            </div>
+                            ${ci === 0 && ii === 0 ? '<span class="play-badge">active</span>' : ''}
+                        </div>
+                    `).join('')}
                 </div>
-                ${i === 0 ? '<span class="play-badge">playing</span>' : ''}
             </div>
         `).join('');
     }
 
-    function buildControls(idx) {
-        document.getElementById('controlsList').innerHTML = games[idx].controls.map(c => `
-            <div class="control-row">
-                <span class="key">${c.key}</span>
-                <span class="control-desc">${c.desc}</span>
-            </div>
-        `).join('');
+    // ── SWITCH ITEM ───────────────────────────────────────────────────────────
+    function switchItem(ci, ii) {
+        // Deactivate previous
+        const prev = document.getElementById(`item-${currentCatIdx}-${currentItemIdx}`);
+        if (prev) {
+            prev.classList.remove('active');
+            const badge = prev.querySelector('.play-badge');
+            if (badge) badge.remove();
+        }
+
+        currentCatIdx  = ci;
+        currentItemIdx = ii;
+
+        const item = categories[ci].items[ii];
+
+        // Activate new
+        const el = document.getElementById(`item-${ci}-${ii}`);
+        if (el) {
+            el.classList.add('active');
+            el.insertAdjacentHTML('beforeend', '<span class="play-badge">active</span>');
+        }
+
+        // Resolve src
+        const isFolder = !!item.folder;
+        const src = isFolder
+            ? `web_build/${item.folder}/index.html`
+            : (item.url || '');
+
+        if (item.newTab && src) {
+            window.open(src, '_blank');
+        } else {
+            document.getElementById('game-frame').src = src;
+        }
+
+        document.getElementById('viewportTitle').textContent = src;
+        document.getElementById('game-title').textContent   = item.name;
+        document.getElementById('game-desc').textContent    = item.desc;
+        document.getElementById('game-tag').textContent     = item.tag;
+
+        // Controls card: show only if item has controls
+        const hasControls = item.controls && item.controls.length > 0;
+        document.getElementById('controlsCard').classList.toggle('hidden', !hasControls);
+        if (hasControls) {
+            document.getElementById('controlsList').innerHTML = item.controls.map(c => `
+                <div class="control-row">
+                    <span class="key">${c.key}</span>
+                    <span class="control-desc">${c.desc}</span>
+                </div>
+            `).join('');
+        }
+
+        // Click hint: only for iframe-based items
+        document.getElementById('clickHint').classList.toggle('hidden', !!item.newTab);
     }
 
-    function switchGame(idx) {
-        current = idx;
-        const g = games[idx];
-
-        document.getElementById('game-frame').src = `web_build/${g.folder}/index.html`;
-        document.getElementById('game-title').textContent = g.name;
-        document.getElementById('game-desc').textContent = g.desc;
-        document.getElementById('game-tag').textContent = g.tag;
-        document.getElementById('viewportTitle').textContent = `web_build/${g.folder}/index.html`;
-
-        document.querySelectorAll('.game-tab').forEach((t, i) => t.classList.toggle('active', i === idx));
-
-        document.querySelectorAll('.game-list-item').forEach((el, i) => {
-            el.classList.toggle('active', i === idx);
-            const badge = el.querySelector('.play-badge');
-            if (i === idx) { if (!badge) el.insertAdjacentHTML('beforeend', '<span class="play-badge">playing</span>'); }
-            else { if (badge) badge.remove(); }
-        });
-
-        buildControls(idx);
-    }
-
-    buildNav();
+    // ── INIT ──────────────────────────────────────────────────────────────────
     buildSidebar();
-    switchGame(0);
+    switchItem(0, 0);
 
     document.addEventListener('click', () => {
         try { document.getElementById('game-frame').contentWindow.focus(); } catch(e) {}

@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>home</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0d0d0f;
+            --surface: #141416;
+            --surface2: #1c1c20;
+            --border: rgba(255,255,255,0.07);
+            --text: #f0ede8;
+            --muted: #7a7770;
+            --accent: #fa5c5c;
+            --accent2: #ff8c42;
+        }
+
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'DM Mono', monospace;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            overflow-y: auto;
+            overflow-x: hidden;
+            padding: 3rem 2rem 4rem;
+        }
+
+        /* grid background */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image:
+                linear-gradient(var(--border) 1px, transparent 1px),
+                linear-gradient(90deg, var(--border) 1px, transparent 1px);
+            background-size: 40px 40px;
+            mask-image: radial-gradient(ellipse 70% 70% at 50% 50%, black 20%, transparent 100%);
+            pointer-events: none;
+        }
+
+        /* accent glow */
+        body::after {
+            content: '';
+            position: fixed;
+            left: 50%;
+            top: 30%;
+            transform: translate(-50%, -50%);
+            width: 600px;
+            height: 300px;
+            background: radial-gradient(ellipse, rgba(250,92,92,0.06) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .card {
+            position: relative;
+            z-index: 1;
+            max-width: 560px;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 1.75rem;
+            opacity: 0;
+            transform: translateY(12px);
+            animation: fadeUp 0.5s ease 0.1s forwards;
+        }
+
+        @keyframes fadeUp {
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .top {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--accent);
+            animation: pulse 2s ease-in-out infinite;
+            flex-shrink: 0;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.4; transform: scale(0.7); }
+        }
+
+        .label {
+            font-size: 0.65rem;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: var(--muted);
+        }
+
+        .name {
+            font-family: 'Syne', sans-serif;
+            font-size: 3rem;
+            font-weight: 800;
+            letter-spacing: -0.04em;
+            line-height: 1;
+        }
+
+        .name .accent { color: var(--accent); }
+
+        .divider {
+            height: 1px;
+            background: var(--border);
+        }
+
+        .bio {
+            font-size: 0.78rem;
+            color: var(--muted);
+            line-height: 1.9;
+        }
+
+        .bio strong { color: var(--text); font-weight: 500; }
+
+        /* ── TAGS ── */
+        .tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .tag {
+            font-size: 0.62rem;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            padding: 4px 10px;
+            border-radius: 4px;
+            border: 1px solid var(--border);
+            color: var(--muted);
+            background: var(--surface2);
+        }
+
+        /* ── LINKS ── */
+        .links {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .link-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 8px 0;
+            border-bottom: 1px solid var(--border);
+            text-decoration: none;
+            font-size: 0.75rem;
+            transition: padding-left 0.2s;
+        }
+
+        .link-row:first-child { border-top: 1px solid var(--border); }
+        .link-row:hover { padding-left: 6px; }
+        .link-row:hover .link-label { color: var(--accent); }
+        .link-row:hover .link-arrow { color: var(--accent); }
+
+        .link-label {
+            color: var(--muted);
+            min-width: 70px;
+            flex-shrink: 0;
+            transition: color 0.15s;
+        }
+
+        .link-url {
+            color: var(--text);
+            text-decoration: none;
+            flex: 1;
+        }
+
+        .link-arrow {
+            color: var(--border);
+            font-size: 0.8rem;
+            transition: color 0.15s;
+        }
+
+        .section-label {
+            font-size: 0.6rem;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: var(--muted);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-label::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--border);
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+
+        <div class="top">
+            <div class="dot"></div>
+            <span class="label">central florida</span>
+        </div>
+
+        <div class="name">clob<span class="accent">ie</span></div>
+
+        <div class="tags">
+            <span class="tag">software dev</span>
+            <span class="tag">game designer</span>
+            <span class="tag">robotics hobbyist</span>
+            <span class="tag">gamer</span>
+        </div>
+
+        <div class="links">
+            <a class="link-row" href="https://github.com/clobie" target="_blank">
+                <span class="link-label">github</span>
+                <span class="link-url">github.com/clobie</span>
+                <span class="link-arrow">↗</span>
+            </a>
+            <a class="link-row" href="https://clobie.itch.io" target="_blank">
+                <span class="link-label">itch.io</span>
+                <span class="link-url">clobie.itch.io</span>
+                <span class="link-arrow">↗</span>
+            </a>
+            <a class="link-row" href="https://discordapp.com/users/264935517643079685" target="_blank">
+                <span class="link-label">discord</span>
+                <span class="link-url">https://discordapp.com/users/264935517643079685</span>
+                <span class="link-arrow">↗</span>
+            </a>
+        </div>
+
+    </div>
+</body>
+</html>
