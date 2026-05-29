@@ -184,6 +184,16 @@
 		border:none;display:block
 	}
 
+	.aspect-box:fullscreen{
+		padding-top:0;width:100vw;height:100vh;
+		background:#000;display:flex;align-items:center;justify-content:center
+	}
+
+	.aspect-box:fullscreen iframe{
+		position:static;width:min(100vw,177.78vh);
+		height:min(56.25vw,100vh)
+	}
+
 	.fullscreen-btn{
 		background:transparent;border:1px solid var(--border);
 		color:var(--muted);padding:4px 10px;border-radius:4px;

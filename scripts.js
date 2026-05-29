@@ -44,15 +44,17 @@ function buildSidebar(){
 	document.getElementById('sidebarCategories').innerHTML =
 		categories.map((cat,ci)=>`
 			<div class="sidebar-card" data-category-type="${cat.type || ''}">
-				<button class="sidebar-label category-toggle"
-					type="button"
-					aria-expanded="${expandedCategories[ci]}"
-					onclick="toggleCategory(${ci})">
-					<span>${cat.label}</span>
-					<span class="category-chevron">${expandedCategories[ci] ? '-' : '+'}</span>
-				</button>
+				${cat.ungrouped ? '' : `
+					<button class="sidebar-label category-toggle"
+						type="button"
+						aria-expanded="${expandedCategories[ci]}"
+						onclick="toggleCategory(${ci})">
+						<span>${cat.label}</span>
+						<span class="category-chevron">${expandedCategories[ci] ? '-' : '+'}</span>
+					</button>
+				`}
 
-				<div class="category-items ${expandedCategories[ci] ? '' : 'collapsed'}"
+				<div class="category-items ${cat.ungrouped || expandedCategories[ci] ? '' : 'collapsed'}"
 					id="list-${ci}">
 					${(cat.items || []).map((item,ii)=>`
 						<div class="entry-list-item ${ci===currentCatIdx&&ii===currentItemIdx?'active':''}"

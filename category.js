@@ -2,6 +2,7 @@ window.siteCategories = [
 	{
 		label: 'Home',
 		type: 'home',
+		ungrouped: true,
 		items: [
 			{
 				name: 'Home',
