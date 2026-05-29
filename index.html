@@ -31,7 +31,6 @@
             overflow-x: hidden;
         }
 
-        /* Scanline overlay */
         body::before {
             content: '';
             position: fixed;
@@ -47,7 +46,6 @@
             z-index: 9999;
         }
 
-        /* ── HEADER ── */
         header {
             position: sticky;
             top: 0;
@@ -86,7 +84,6 @@
             50% { opacity: 0.4; transform: scale(0.7); }
         }
 
-        /* ── GAME NAV ── */
         .game-nav {
             display: flex;
             gap: 4px;
@@ -110,10 +107,7 @@
             white-space: nowrap;
         }
 
-        .game-tab:hover {
-            color: var(--text);
-            background: var(--surface2);
-        }
+        .game-tab:hover { color: var(--text); background: var(--surface2); }
 
         .game-tab.active {
             color: var(--accent);
@@ -132,7 +126,6 @@
             border-radius: 2px 2px 0 0;
         }
 
-        /* ── MAIN LAYOUT ── */
         .layout {
             display: grid;
             grid-template-columns: 260px 1fr;
@@ -143,7 +136,6 @@
             gap: 1.5rem;
         }
 
-        /* ── SIDEBAR ── */
         .sidebar {
             grid-row: 1 / span 2;
             display: flex;
@@ -178,7 +170,6 @@
         }
 
         .game-list-item:last-child { border-bottom: none; }
-
         .game-list-item:hover { background: var(--surface2); }
 
         .game-list-item.active {
@@ -236,7 +227,6 @@
             border-radius: 3px;
         }
 
-        /* controls section in sidebar */
         .controls-list {
             padding: 12px 16px;
             display: flex;
@@ -267,7 +257,6 @@
 
         .control-desc { color: var(--muted); }
 
-        /* ── GAME AREA ── */
         .game-area { display: flex; flex-direction: column; gap: 1.25rem; }
 
         .viewport-wrapper {
@@ -301,11 +290,20 @@
             margin-right: auto;
         }
 
-        iframe {
-            display: block;
+        /* ── ASPECT RATIO BOX ── */
+        .aspect-box {
+            position: relative;
             width: 100%;
-            height: 560px;
+            padding-top: 75%; /* 4:3 */
+        }
+
+        .aspect-box iframe {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
             border: none;
+            display: block;
         }
 
         .fullscreen-btn {
@@ -323,7 +321,6 @@
 
         .fullscreen-btn:hover { color: var(--text); border-color: var(--border-accent); }
 
-        /* ── INFO BAR ── */
         .info-bar {
             background: var(--surface);
             border: 1px solid var(--border);
@@ -373,7 +370,6 @@
 
         .click-hint span { color: var(--accent); }
 
-        /* ── ANIMATIONS ── */
         @keyframes fadeSlide {
             from { opacity: 0; transform: translateY(8px); }
             to { opacity: 1; transform: translateY(0); }
@@ -381,7 +377,6 @@
 
         .game-area { animation: fadeSlide 0.3s ease; }
 
-        /* ── RESPONSIVE ── */
         @media (max-width: 780px) {
             .layout {
                 grid-template-columns: 1fr;
@@ -390,7 +385,6 @@
             .sidebar { grid-row: auto; }
             header { padding: 0 1rem; }
             .logo-text { display: none; }
-            iframe { height: 380px; }
         }
     </style>
 </head>
@@ -401,15 +395,11 @@
         <div class="logo-dot"></div>
         <span class="logo-text">clobie.github.io</span>
     </div>
-    <nav class="game-nav" id="topNav">
-        <button class="game-tab active" onclick="switchGame(0, this)">Steve</button>
-        <button class="game-tab" onclick="switchGame(1, this)">Orb Thing</button>
-    </nav>
+    <nav class="game-nav" id="topNav"></nav>
 </header>
 
 <div class="layout">
 
-    <!-- SIDEBAR -->
     <aside class="sidebar">
         <div class="sidebar-card">
             <div class="sidebar-label">Games</div>
@@ -422,24 +412,25 @@
         </div>
     </aside>
 
-    <!-- GAME AREA -->
     <div class="game-area">
         <div class="viewport-wrapper">
             <div class="viewport-topbar">
                 <div class="dot dot-red"></div>
                 <div class="dot dot-yellow"></div>
                 <div class="dot dot-green"></div>
-                <span class="viewport-title" id="viewportTitle">web_build/tentacle/index.html</span>
-                <button class="fullscreen-btn" onclick="document.getElementById('game-frame').requestFullscreen()">⛶ fullscreen</button>
+                <span class="viewport-title" id="viewportTitle"></span>
+                <button class="fullscreen-btn" onclick="document.querySelector('.aspect-box').requestFullscreen()">⛶ fullscreen</button>
             </div>
-            <iframe id="game-frame" src="web_build/tentacle/index.html" allowfullscreen></iframe>
+            <div class="aspect-box">
+                <iframe id="game-frame" src="" allowfullscreen></iframe>
+            </div>
         </div>
 
         <div class="info-bar">
             <div>
-                <div class="info-title" id="game-title">Steve</div>
-                <div class="info-desc" id="game-desc">His name is steve.</div>
-                <div class="info-tag" id="game-tag">platformer</div>
+                <div class="info-title" id="game-title"></div>
+                <div class="info-desc" id="game-desc"></div>
+                <div class="info-tag" id="game-tag"></div>
             </div>
             <div class="click-hint">click inside to<br>capture <span>keyboard focus</span></div>
         </div>
@@ -456,9 +447,9 @@
             tag: 'platformer',
             icon: '🐙',
             controls: [
-                { key: 'W', desc: 'Wall Hold' },
-                { key: 'A', desc: 'Move Left' },
-                { key: 'D', desc: 'Move Right' },
+                { key: 'W',   desc: 'Wall Hold' },
+                { key: 'A',   desc: 'Move Left' },
+                { key: 'D',   desc: 'Move Right' },
                 { key: 'SPC', desc: 'Jump' },
             ]
         },
@@ -466,24 +457,42 @@
             folder: 'orbdemo',
             name: 'Orb Puzzle Thing',
             desc: 'Put orb in thing. Fight boss.',
-            tag: 'arcade',
+            tag: 'platformer',
             icon: '🔮',
             controls: [
-                { key: 'W',    desc: 'Wall Hold' },
-                { key: 'A D',  desc: 'Move Left / Right' },
-                { key: 'SPC',  desc: 'Jump / Double Jump' },
-                { key: 'LMB',  desc: 'Shoot — kills enemies, pushes orbs' },
-                { key: 'RMB',  desc: 'Gravity Gun — pulls orbs' },
+                { key: 'W',   desc: 'Wall Hold' },
+                { key: 'S',   desc: 'Wall Slide (while wall holding)' },
+                { key: 'A',   desc: 'Move Left' },
+                { key: 'D',   desc: 'Move Right' },
+                { key: 'SPC', desc: 'Jump / Double Jump' },
+                { key: 'LMB', desc: 'Shoot — kills enemies, pushes orbs' },
+                { key: 'RMB', desc: 'Gravity Gun — pulls orbs' },
+            ]
+        },
+        {
+            folder: 'space',
+            name: 'Space Game Thing',
+            desc: 'All you can do is fly around lol',
+            tag: 'topdown-shooter',
+            icon: '🚀',
+            controls: [
+                { key: 'LMB', desc: 'Thrust' },
+                { key: 'RMB', desc: 'Laser' },
             ]
         }
     ];
 
     let current = 0;
 
+    function buildNav() {
+        document.getElementById('topNav').innerHTML = games.map((g, i) => `
+            <button class="game-tab ${i === 0 ? 'active' : ''}" onclick="switchGame(${i})">${g.name}</button>
+        `).join('');
+    }
+
     function buildSidebar() {
-        const list = document.getElementById('gameList');
-        list.innerHTML = games.map((g, i) => `
-            <div class="game-list-item ${i === 0 ? 'active' : ''}" onclick="switchGame(${i}, null)">
+        document.getElementById('gameList').innerHTML = games.map((g, i) => `
+            <div class="game-list-item ${i === 0 ? 'active' : ''}" onclick="switchGame(${i})">
                 <div class="game-icon">${g.icon}</div>
                 <div class="game-list-meta">
                     <div class="game-list-name">${g.name}</div>
@@ -495,8 +504,7 @@
     }
 
     function buildControls(idx) {
-        const g = games[idx];
-        document.getElementById('controlsList').innerHTML = g.controls.map(c => `
+        document.getElementById('controlsList').innerHTML = games[idx].controls.map(c => `
             <div class="control-row">
                 <span class="key">${c.key}</span>
                 <span class="control-desc">${c.desc}</span>
@@ -504,46 +512,34 @@
         `).join('');
     }
 
-    function switchGame(idx, tabEl) {
+    function switchGame(idx) {
         current = idx;
         const g = games[idx];
 
-        // iframe
-        const frame = document.getElementById('game-frame');
-        frame.src = `web_build/${g.folder}/index.html`;
-
-        // info bar
+        document.getElementById('game-frame').src = `web_build/${g.folder}/index.html`;
         document.getElementById('game-title').textContent = g.name;
         document.getElementById('game-desc').textContent = g.desc;
         document.getElementById('game-tag').textContent = g.tag;
         document.getElementById('viewportTitle').textContent = `web_build/${g.folder}/index.html`;
 
-        // top nav tabs
-        document.querySelectorAll('.game-tab').forEach((t, i) => {
-            t.classList.toggle('active', i === idx);
-        });
+        document.querySelectorAll('.game-tab').forEach((t, i) => t.classList.toggle('active', i === idx));
 
-        // sidebar list
         document.querySelectorAll('.game-list-item').forEach((el, i) => {
             el.classList.toggle('active', i === idx);
             const badge = el.querySelector('.play-badge');
-            if (i === idx) {
-                if (!badge) el.insertAdjacentHTML('beforeend', '<span class="play-badge">playing</span>');
-            } else {
-                if (badge) badge.remove();
-            }
+            if (i === idx) { if (!badge) el.insertAdjacentHTML('beforeend', '<span class="play-badge">playing</span>'); }
+            else { if (badge) badge.remove(); }
         });
 
         buildControls(idx);
     }
 
+    buildNav();
     buildSidebar();
-    buildControls(0);
+    switchGame(0);
 
-    // keyboard focus passthrough
     document.addEventListener('click', () => {
-        const frame = document.getElementById('game-frame');
-        try { frame.contentWindow.focus(); } catch(e) {}
+        try { document.getElementById('game-frame').contentWindow.focus(); } catch(e) {}
     });
 </script>
 </body>
