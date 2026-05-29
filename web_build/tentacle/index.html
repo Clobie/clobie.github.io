@@ -179,7 +179,8 @@ const engine = new Engine(GODOT_CONFIG);
 			Promise.race([
 				serviceWorkerRegistrationPromise.then((registration) => {
 					if (registration != null) {
-						return Promise.reject(new Error('Service worker already exists.'));
+						console.log("Service worker already exists, proceeding...");
+						// return Promise.reject(new Error('Service worker already exists.'));
 					}
 					return registration;
 				}).then(() => engine.installServiceWorker()),
