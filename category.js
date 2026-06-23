@@ -20,6 +20,15 @@ window.siteCategories = [
 		type: 'games',
 		items: [
 			{
+				folder: 'boom-boom-game',
+				nav_slug: 'boom-boom-game',
+				name: 'Boom Boom Game',
+				desc: 'Boom boom.',
+				sidebar_desc: 'A new game prototype.',
+				tag: 'game',
+				icon: '&#x1F4A5;',
+			},
+			{
 				folder: 'steve',
 				nav_slug: 'steve',
 				name: 'Steve is dreaming',
