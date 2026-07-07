@@ -16,17 +16,17 @@ window.siteCategories = [
 		]
 	},
 	{
-		label: 'Game Scratchboard',
+		label: 'Game Demos',
 		type: 'games',
 		items: [
 			{
-				folder: 'boom-boom-game',
-				nav_slug: 'boom-boom-game',
-				name: 'Boom Boom Game',
-				desc: 'Boom boom.',
-				sidebar_desc: 'A new game prototype.',
-				tag: 'game',
-				icon: '&#x1F4A5;',
+				folder: 'boomer-strike',
+				nav_slug: 'boomer-strike',
+				name: 'Boomer Strike',
+				desc: 'Old-school boomer shooter action.',
+				sidebar_desc: 'Retro FPS prototype in the style of classic boomer shooters.',
+				tag: 'fps',
+				icon: '&#x1F52B;',
 			},
 			{
 				folder: 'steve',
@@ -42,11 +42,17 @@ window.siteCategories = [
 					{ key: 'D', desc: 'Move Right' },
 					{ key: 'SPC', desc: 'Jump' },
 				]
-			},
+			}
+		]
+	},
+	{
+		label: 'Game Scratchpad',
+		type: 'games',
+		items: [
 			{
 				folder: 'orb',
 				nav_slug: 'orb',
-				name: 'Orb Puzzle Thing',
+				name: 'Orb',
 				desc: 'Put orb in thing. Fight boss.',
 				sidebar_desc: 'Orb physics, boss fight, and movement prototype.',
 				tag: 'platformer',
@@ -62,9 +68,18 @@ window.siteCategories = [
 				]
 			},
 			{
+				folder: 'boom-boom-game',
+				nav_slug: 'boom-boom-game',
+				name: 'Scrap War',
+				desc: 'Boom boom.',
+				sidebar_desc: 'A new game prototype.',
+				tag: 'game',
+				icon: '&#x1F4A5;',
+			},
+			{
 				folder: 'space',
 				nav_slug: 'space',
-				name: 'Space Game Thing',
+				name: 'Space Game',
 				desc: 'All you can do is fly around lol',
 				sidebar_desc: 'Top-down flight experiment.',
 				tag: 'topdown-shooter',
@@ -77,7 +92,22 @@ window.siteCategories = [
 		]
 	},
 	{
-		label: 'Websites',
+		label: 'Tools',
+		type: 'tools',
+		items: [
+			{
+				folder: 'light-texture-generator',
+				nav_slug: 'light-texture-generator',
+				name: 'LiTexture',
+				desc: 'Generate tileable light and texture maps.',
+				sidebar_desc: 'Procedural texture generation tool.',
+				tag: 'tool',
+				icon: '&#x1F3A8;',
+			}
+		]
+	},
+	{
+		label: 'Other',
 		type: 'websites',
 		items: [
 			{
